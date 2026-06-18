@@ -1,0 +1,131 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Inter:wght@300;400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg:              #04040a;
+  --bg-mid:          #070710;
+  --bg-surface:      #0d0d1c;
+
+  --glass-faint:     rgba(255,255,255,0.025);
+  --glass-low:       rgba(255,255,255,0.04);
+  --glass-mid:       rgba(255,255,255,0.07);
+  --glass-high:      rgba(255,255,255,0.11);
+  --glass-border:    rgba(255,255,255,0.06);
+  --glass-border-hi: rgba(255,255,255,0.12);
+
+  --purple:          #7B6EF6;
+  --pink:            #E96BF5;
+  --gradient:        linear-gradient(135deg, #7B6EF6, #E96BF5);
+  --gradient-text:   linear-gradient(125deg, #a89fff, #E96BF5);
+  --success:         #00C896;
+
+  --text-1:   rgba(255,255,255,0.96);
+  --text-2:   rgba(255,255,255,0.52);
+  --text-3:   rgba(255,255,255,0.22);
+
+  --shadow-md:  0 4px 32px rgba(0,0,0,0.55);
+  --shadow-lg:  0 20px 60px rgba(0,0,0,0.65);
+  --glow-sm:    0 0 40px rgba(123,110,246,0.14);
+  --glow-md:    0 0 80px rgba(123,110,246,0.22);
+
+  --font-mono: 'DM Mono', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text-1);
+  font-size: 14px;
+  line-height: 1.65;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Bricolage Grotesque', sans-serif;
+}
+
+.g-text {
+  background: var(--gradient-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.glass {
+  background: var(--glass-low);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+.btn-cta {
+  background: var(--gradient);
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+  border-radius: 12px;
+  padding: 14px 28px;
+  cursor: pointer;
+  transition: opacity 0.18s ease, transform 0.14s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.btn-cta:hover  { opacity: 0.85; }
+.btn-cta:active { transform: scale(0.98); }
+
+.btn-outline {
+  background: var(--glass-faint);
+  border: 1px solid var(--glass-border-hi);
+  color: var(--text-2);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  border-radius: 12px;
+  padding: 14px 28px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.btn-outline:hover { background: var(--glass-mid); color: var(--text-1); }
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.016;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+section { position: relative; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
