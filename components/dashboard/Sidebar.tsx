@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useDemo } from "@/components/dashboard/DemoProvider";
 import {
   IconLayoutDashboard,
   IconUsers,
@@ -28,8 +29,9 @@ const nav = [
   { label: "Settings",        href: "/dashboard/settings",       icon: IconSettings },
 ];
 
-export default function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
+export default function Sidebar({ open, onClose, onAiClick }: { open: boolean; onClose: () => void; onAiClick?: () => void }) {
   const pathname = usePathname();
+  const { demo } = useDemo();
 
   const isActive = (href: string) =>
     href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(href);
@@ -103,7 +105,7 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
 
         {/* AI button */}
         <div className="px-3 pb-3">
-          <button className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-[13px] bg-gradient-to-r from-[#7B6EF6]/8 to-[#E96BF5]/8 border border-[#7B6EF6]/15 text-zinc-600 hover:text-zinc-900 transition-colors cursor-pointer">
+          <button onClick={onAiClick} className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-[13px] bg-gradient-to-r from-[#7B6EF6]/8 to-[#E96BF5]/8 border border-[#7B6EF6]/15 text-zinc-600 hover:text-zinc-900 transition-colors cursor-pointer">
             <IconBrain size={18} stroke={1.6} className="text-[#7B6EF6]" />
             <div className="text-left">
               <div className="font-medium text-zinc-800">Ask AI</div>
@@ -112,10 +114,19 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
           </button>
         </div>
 
-        {/* Channel info placeholder */}
+        {/* Channel info */}
         <div className="px-5 py-4 border-t border-zinc-100">
           <p className="text-[11px] text-zinc-400 uppercase tracking-wider font-medium">Channel</p>
-          <p className="text-[13px] text-zinc-500 mt-1">No channel connected</p>
+          {demo ? (
+            <div className="flex items-center gap-2.5 mt-2">
+              {demo.channel.thumbnail && (
+                <img src={demo.channel.thumbnail} alt="" className="w-7 h-7 rounded-full shrink-0" />
+              )}
+              <p className="text-[13px] text-zinc-700 font-medium truncate">{demo.channel.name}</p>
+            </div>
+          ) : (
+            <p className="text-[13px] text-zinc-500 mt-1">No channel connected</p>
+          )}
         </div>
       </aside>
     </>
