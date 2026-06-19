@@ -4,6 +4,62 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ===========================================================
+   SHADCN/UI TOKENS — light mode (dashboard default)
+   =========================================================== */
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 4%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 4%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 4%;
+    --primary: 245 87% 70%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 5% 96%;
+    --secondary-foreground: 240 6% 10%;
+    --muted: 240 5% 96%;
+    --muted-foreground: 240 4% 46%;
+    --accent: 240 5% 96%;
+    --accent-foreground: 240 6% 10%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 6% 90%;
+    --input: 240 6% 90%;
+    --ring: 245 87% 70%;
+    --radius: 0.625rem;
+    --success: 160 100% 39%;
+  }
+
+  .dark {
+    --background: 240 43% 3%;
+    --foreground: 0 0% 96%;
+    --card: 240 35% 8%;
+    --card-foreground: 0 0% 96%;
+    --popover: 240 35% 8%;
+    --popover-foreground: 0 0% 96%;
+    --primary: 245 87% 70%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 4% 16%;
+    --secondary-foreground: 0 0% 96%;
+    --muted: 240 4% 16%;
+    --muted-foreground: 240 5% 65%;
+    --accent: 240 4% 16%;
+    --accent-foreground: 0 0% 96%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 4% 16%;
+    --input: 240 4% 16%;
+    --ring: 245 87% 70%;
+    --success: 160 100% 39%;
+  }
+}
+
+/* ===========================================================
+   MARKETING / LANDING PAGE TOKENS (always dark)
+   These power the existing landing page components.
+   =========================================================== */
 :root {
   --bg:              #04040a;
   --bg-mid:          #070710;
@@ -20,7 +76,6 @@
   --pink:            #E96BF5;
   --gradient:        linear-gradient(135deg, #7B6EF6, #E96BF5);
   --gradient-text:   linear-gradient(125deg, #a89fff, #E96BF5);
-  --success:         #00C896;
 
   --text-1:   rgba(255,255,255,0.96);
   --text-2:   rgba(255,255,255,0.52);
@@ -34,6 +89,9 @@
   --font-mono: 'DM Mono', monospace;
 }
 
+/* ===========================================================
+   BASE STYLES
+   =========================================================== */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 html {
@@ -55,6 +113,9 @@ h1, h2, h3, h4 {
   font-family: 'Bricolage Grotesque', sans-serif;
 }
 
+/* ===========================================================
+   UTILITY CLASSES — marketing pages
+   =========================================================== */
 .g-text {
   background: var(--gradient-text);
   -webkit-background-clip: text;
@@ -111,6 +172,7 @@ h1, h2, h3, h4 {
 }
 .btn-outline:hover { background: var(--glass-mid); color: var(--text-1); }
 
+/* Film-grain overlay */
 body::after {
   content: '';
   position: fixed;
