@@ -15,12 +15,14 @@ import {
   IconSettings,
   IconBrain,
   IconX,
+  IconCalculator,
 } from "@tabler/icons-react";
 
 const nav = [
   { label: "Overview",        href: "/dashboard",               icon: IconLayoutDashboard },
   { label: "Team",            href: "/dashboard/team",           icon: IconUsers },
   { label: "Videos",          href: "/dashboard/videos",         icon: IconVideo },
+  { label: "Pay Calculator",  href: "/dashboard/calculator",     icon: IconCalculator },
   { label: "Bonuses",         href: "/dashboard/bonuses",        icon: IconCoin },
   { label: "Performance Log", href: "/dashboard/log",            icon: IconClipboardText },
   { label: "Reports",         href: "/dashboard/reports",        icon: IconChartBar },
