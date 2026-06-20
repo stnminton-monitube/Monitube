@@ -45,11 +45,47 @@ export default async function SettingsPage() {
         </div>
       </div>
 
+      {/* Plan & Billing */}
+      <div className="bg-white rounded-2xl border border-zinc-200 p-6 mb-4">
+        <p className="text-[11px] text-zinc-400 uppercase tracking-wider font-medium mb-5">Plan & Billing</p>
+
+        <div className="flex items-center gap-3 mb-5">
+          <span className="text-[12px] font-medium px-3 py-1 rounded-full bg-zinc-100 text-zinc-600 border border-zinc-200">
+            Free Plan
+          </span>
+          <span className="text-[12px] text-zinc-400">Current plan</span>
+        </div>
+
+        <div className="space-y-2.5 mb-5">
+          <p className="text-[13px] text-zinc-500 leading-relaxed font-medium text-zinc-700">What&apos;s included:</p>
+          {["Pay Calculator", "Pipeline (up to 3 videos, 1 team member)"].map((f) => (
+            <div key={f} className="flex items-center gap-2.5 text-[13px] text-zinc-500">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                <path d="M3.5 8.5L6.5 11.5L12.5 5" stroke="#7B6EF6" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              {f}
+            </div>
+          ))}
+        </div>
+
+        <div className="p-4 rounded-xl bg-gradient-to-br from-[#7B6EF6]/5 to-[#E96BF5]/5 border border-[#7B6EF6]/10 mb-4">
+          <p className="text-[13px] font-medium text-zinc-900 mb-1">Upgrade to Pro</p>
+          <p className="text-[12px] text-zinc-500 leading-relaxed mb-0.5">
+            $5 per team member/month — unlimited videos, payment tracking, invoicing, public verified profiles, AI insights, and priority support.
+          </p>
+          <p className="text-[11px] text-zinc-400">A 5-person team = $25/mo</p>
+        </div>
+
+        <button className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#7B6EF6] to-[#E96BF5] text-white text-[13px] font-medium cursor-pointer hover:opacity-90 transition-opacity">
+          Upgrade to Pro
+        </button>
+      </div>
+
       {/* Workspace placeholder */}
       <div className="bg-white rounded-2xl border border-zinc-200 p-6">
         <p className="text-[11px] text-zinc-400 uppercase tracking-wider font-medium mb-5">Workspace</p>
         <p className="text-[13px] text-zinc-500 leading-relaxed">
-          Team management, billing, and YouTube connection settings will appear here once your workspace is set up.
+          Team management and YouTube connection settings will appear here once your workspace is set up.
         </p>
       </div>
     </div>

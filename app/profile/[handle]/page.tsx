@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 /* ───────────────────────── Demo Data ───────────────────────── */
@@ -176,6 +177,47 @@ const ROLE_COLORS: Record<string, string> = {
   Writer: "bg-blue-50 text-blue-700 border-blue-200",
   "Asst. Editor": "bg-orange-50 text-orange-700 border-orange-200",
 };
+
+/* ───────────────────────── SEO Metadata ───────────────────────── */
+
+function fmtMeta(n: number): string {
+  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
+  if (n >= 1_000) return (n / 1_000).toFixed(0) + "K";
+  return n.toLocaleString();
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ handle: string }>;
+}): Promise<Metadata> {
+  const { handle } = await params;
+  const profile = PROFILES[handle];
+
+  if (!profile) {
+    return {
+      title: "Profile Not Found | Monitube",
+      description: "This Monitube profile could not be found.",
+    };
+  }
+
+  return {
+    title: `${profile.name} — ${profile.role} | Monitube Verified Profile`,
+    description: `Verified YouTube ${profile.role} with ${fmtMeta(profile.totalViews)} views across ${profile.videosCredited} videos. See ${profile.name}'s portfolio on Monitube.`,
+    openGraph: {
+      title: `${profile.name} — ${profile.role} | Monitube Verified Profile`,
+      description: `Verified YouTube ${profile.role} with ${fmtMeta(profile.totalViews)} views across ${profile.videosCredited} videos.`,
+      type: "profile",
+      url: `https://monitube.work/profile/${handle}`,
+      siteName: "Monitube",
+    },
+    twitter: {
+      card: "summary",
+      title: `${profile.name} — ${profile.role} | Monitube Verified Profile`,
+      description: `Verified YouTube ${profile.role} with ${fmtMeta(profile.totalViews)} views across ${profile.videosCredited} videos.`,
+    },
+  };
+}
 
 /* ───────────────────────── Page ───────────────────────── */
 

@@ -3,9 +3,34 @@ import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 
 export const metadata: Metadata = {
-  title: "Monitube — YouTube Team Analytics for Channel Owners",
+  title: "Monitube — Manage Your YouTube Team | Pay, Projects, Profiles",
   description:
-    "Stop managing your team on gut feeling. See exactly who's driving results with real retention, CTR, and watch time pulled straight from YouTube.",
+    "The operating system for YouTube teams. Calculate fair editor pay, track video production, manage payments, and give your team verified portfolios.",
+  metadataBase: new URL("https://monitube.work"),
+  alternates: {
+    canonical: "/",
+  },
+  keywords: [
+    "youtube editor pay calculator",
+    "youtube team management",
+    "how much to pay youtube editor",
+    "youtube editor portfolio",
+    "youtube video production pipeline",
+  ],
+  openGraph: {
+    title: "Monitube — Manage Your YouTube Team | Pay, Projects, Profiles",
+    description:
+      "The operating system for YouTube teams. Calculate fair editor pay, track video production, manage payments, and give your team verified portfolios.",
+    type: "website",
+    url: "https://monitube.work",
+    siteName: "Monitube",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Monitube — Manage Your YouTube Team | Pay, Projects, Profiles",
+    description:
+      "The operating system for YouTube teams. Calculate fair editor pay, track video production, manage payments, and give your team verified portfolios.",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

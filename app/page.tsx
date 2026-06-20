@@ -554,7 +554,7 @@ export default function HomePage() {
                 $0
               </p>
               <p style={{ fontSize: 14, color: "var(--text-3)", marginBottom: 28 }}>
-                forever
+                free forever — no login needed
               </p>
               <ul
                 style={{
@@ -567,10 +567,8 @@ export default function HomePage() {
                 }}
               >
                 {[
-                  "1 channel",
-                  "Up to 3 team members",
-                  "Pay calculator",
-                  "Basic pipeline",
+                  "Pay Calculator",
+                  "Pipeline (up to 3 videos, 1 team member)",
                 ].map((f) => (
                   <li
                     key={f}
@@ -588,7 +586,7 @@ export default function HomePage() {
                 ))}
               </ul>
               <Link
-                href="/sign-up"
+                href="/calculator"
                 className="btn-outline"
                 style={{
                   marginTop: 32,
@@ -596,7 +594,7 @@ export default function HomePage() {
                   width: "100%",
                 }}
               >
-                Get started free
+                Try the calculator
               </Link>
             </div>
           </FadeIn>
@@ -638,15 +636,15 @@ export default function HomePage() {
                     letterSpacing: "0.02em",
                   }}
                 >
-                  Popular
+                  Recommended
                 </span>
               </div>
               <p style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 4 }}>
-                <span style={{ ...heading, fontSize: 40, color: "var(--text-1)" }}>$29</span>
-                <span style={{ fontSize: 14, color: "var(--text-3)" }}>/mo</span>
+                <span style={{ ...heading, fontSize: 40, color: "var(--text-1)" }}>$5</span>
+                <span style={{ fontSize: 14, color: "var(--text-3)" }}>/team member/mo</span>
               </p>
               <p style={{ fontSize: 14, color: "var(--text-3)", marginBottom: 28 }}>
-                per channel
+                A 5-person team = $25/mo
               </p>
               <ul
                 style={{
@@ -659,11 +657,12 @@ export default function HomePage() {
                 }}
               >
                 {[
+                  "Unlimited pipeline videos",
                   "Unlimited team members",
-                  "Payment tracking",
-                  "Invoicing",
-                  "Public profiles",
-                  "AI insights",
+                  "Payment tracking & logging",
+                  "Invoicing from team members",
+                  "Public verified profiles",
+                  "AI team insights",
                   "Priority support",
                 ].map((f) => (
                   <li
@@ -690,7 +689,7 @@ export default function HomePage() {
                   width: "100%",
                 }}
               >
-                Start free trial
+                Get started
               </Link>
             </div>
           </FadeIn>
