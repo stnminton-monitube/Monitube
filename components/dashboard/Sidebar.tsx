@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useDemo } from "@/components/dashboard/DemoProvider";
 import {
   IconLayoutDashboard,
   IconColumns3,
@@ -12,8 +11,10 @@ import {
   IconFileInvoice,
   IconUserCircle,
   IconSettings,
-  IconBrain,
   IconX,
+  IconCurrencyDollar,
+  IconChartBar,
+  IconTargetArrow,
 } from "@tabler/icons-react";
 
 const sections = [
@@ -31,10 +32,14 @@ const sections = [
     ],
   },
   {
-    label: "Pay",
+    label: "Money",
     items: [
+      { label: "Earnings", href: "/dashboard/earnings", icon: IconCurrencyDollar },
+      { label: "Spending", href: "/dashboard/spending", icon: IconChartBar },
       { label: "Calculator", href: "/dashboard/calculator", icon: IconCalculator },
       { label: "Payments", href: "/dashboard/payments", icon: IconReceipt },
+      { label: "Invoices", href: "/dashboard/invoices", icon: IconFileInvoice },
+      { label: "Bonuses", href: "/dashboard/bonuses", icon: IconTargetArrow },
     ],
   },
   {
@@ -51,9 +56,8 @@ const sections = [
   },
 ];
 
-export default function Sidebar({ open, onClose, onAiClick }: { open: boolean; onClose: () => void; onAiClick?: () => void }) {
+export default function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
   const pathname = usePathname();
-  const { demo } = useDemo();
 
   const isActive = (href: string) =>
     href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(href);
@@ -93,10 +97,10 @@ export default function Sidebar({ open, onClose, onAiClick }: { open: boolean; o
                   return (
                     <li key={href}>
                       <Link href={href} onClick={onClose}
-                        className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-normal transition-colors duration-150 ${
+                        className={`flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-normal transition-colors duration-150 ${
                           active ? "bg-[#7B6EF6]/8 text-[#7B6EF6] font-medium" : "text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900"
                         }`}>
-                        <Icon size={18} stroke={1.6} />
+                        <Icon size={17} stroke={1.6} />
                         {label}
                       </Link>
                     </li>
@@ -107,26 +111,14 @@ export default function Sidebar({ open, onClose, onAiClick }: { open: boolean; o
           ))}
         </nav>
 
-        <div className="px-3 pb-3">
-          <button onClick={onAiClick} className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-[13px] bg-gradient-to-r from-[#7B6EF6]/8 to-[#E96BF5]/8 border border-[#7B6EF6]/15 text-zinc-600 hover:text-zinc-900 transition-colors cursor-pointer">
-            <IconBrain size={18} stroke={1.6} className="text-[#7B6EF6]" />
-            <div className="text-left">
-              <div className="font-medium text-zinc-800">Ask AI</div>
-              <div className="text-[11px] text-zinc-400">Team help</div>
-            </div>
-          </button>
-        </div>
-
-        <div className="px-5 py-4 border-t border-zinc-100">
-          <p className="text-[11px] text-zinc-400 uppercase tracking-wider font-medium">Workspace</p>
-          {demo ? (
-            <div className="flex items-center gap-2.5 mt-2">
-              {demo.channel.thumbnail && <img src={demo.channel.thumbnail} alt="" className="w-7 h-7 rounded-full shrink-0" />}
-              <p className="text-[13px] text-zinc-700 font-medium truncate">{demo.channel.name}</p>
-            </div>
-          ) : (
-            <p className="text-[13px] text-zinc-500 mt-1">No workspace yet</p>
-          )}
+        <div className="px-4 py-4 border-t border-zinc-100">
+          <div className="p-3 rounded-xl bg-gradient-to-br from-[#7B6EF6]/5 to-[#E96BF5]/5 border border-[#7B6EF6]/10">
+            <p className="text-[11px] font-medium text-zinc-700">Free Plan</p>
+            <p className="text-[10px] text-zinc-400 mt-0.5">3 videos · 1 member</p>
+            <Link href="/dashboard/settings" className="text-[10px] text-[#7B6EF6] font-medium mt-1.5 block hover:underline">
+              Upgrade to Pro →
+            </Link>
+          </div>
         </div>
       </aside>
     </>

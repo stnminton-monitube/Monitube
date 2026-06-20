@@ -71,7 +71,7 @@ export default async function SettingsPage() {
         <div className="p-4 rounded-xl bg-gradient-to-br from-[#7B6EF6]/5 to-[#E96BF5]/5 border border-[#7B6EF6]/10 mb-4">
           <p className="text-[13px] font-medium text-zinc-900 mb-1">Upgrade to Pro</p>
           <p className="text-[12px] text-zinc-500 leading-relaxed mb-0.5">
-            $5 per team member/month — unlimited videos, payment tracking, invoicing, public verified profiles, AI insights, and priority support.
+            $5 per team member/month — unlimited videos, payment tracking, invoicing, earnings tracking, bonuses, public verified profiles, and priority support.
           </p>
           <p className="text-[11px] text-zinc-400">A 5-person team = $25/mo</p>
         </div>
