@@ -1,251 +1,108 @@
 "use client";
 
-import { useDemo } from "@/components/dashboard/DemoProvider";
-import { generateSummary } from "@/lib/demo-data";
-import { IconSearch, IconLoader2, IconTrendingUp, IconTrendingDown, IconMinus, IconArrowRight, IconSparkles, IconCurrencyDollar } from "@tabler/icons-react";
-import { useState } from "react";
+import { IconColumns3, IconReceipt, IconUserCircle, IconCalculator, IconUsers, IconArrowRight } from "@tabler/icons-react";
 import Link from "next/link";
 
-function fmt(n: number): string {
-  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
-  if (n >= 1_000) return (n / 1_000).toFixed(1).replace(/\.0$/, "") + "K";
-  return n.toLocaleString();
-}
+const PILLARS = [
+  {
+    icon: IconColumns3,
+    title: "Pipeline",
+    desc: "Track every video from idea to published. See who's working on what, deadlines, and where things stand.",
+    href: "/dashboard/pipeline",
+    color: "from-[#7B6EF6] to-[#6358d4]",
+  },
+  {
+    icon: IconReceipt,
+    title: "Payments",
+    desc: "Log what you pay each team member. See your total spend per person, per video, and per month.",
+    href: "/dashboard/payments",
+    color: "from-emerald-500 to-emerald-600",
+  },
+  {
+    icon: IconUserCircle,
+    title: "Public Profiles",
+    desc: "Give your team verified portfolios they can share when applying for work — backed by real channel data.",
+    href: "/dashboard/profiles",
+    color: "from-[#E96BF5] to-[#c74ed4]",
+  },
+];
 
-function fmtDollars(n: number): string {
-  if (n >= 1_000_000) return "$" + (n / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
-  if (n >= 1_000) return "$" + (n / 1_000).toFixed(1).replace(/\.0$/, "") + "K";
-  return "$" + Math.round(n).toLocaleString();
-}
-
-const ROLE_COLORS: Record<string, string> = {
-  editor: "bg-purple-100 text-purple-700",
-  writer: "bg-blue-100 text-blue-700",
-  thumbnail_designer: "bg-pink-100 text-pink-700",
-  assistant_editor: "bg-orange-100 text-orange-700",
-  manager: "bg-green-100 text-green-700",
-};
-
-const ROLE_LABELS: Record<string, string> = {
-  editor: "Editor",
-  writer: "Writer",
-  thumbnail_designer: "Designer",
-  assistant_editor: "Asst. Editor",
-  manager: "Manager",
-};
+const QUICK_ACTIONS = [
+  { icon: IconColumns3, label: "Add a video to pipeline", href: "/dashboard/pipeline" },
+  { icon: IconUsers, label: "Manage team members", href: "/dashboard/team" },
+  { icon: IconCalculator, label: "Calculate fair pay", href: "/dashboard/calculator" },
+  { icon: IconReceipt, label: "Log a payment", href: "/dashboard/payments" },
+];
 
 export default function DashboardPage() {
-  const { demo, loading, error, loadDemo } = useDemo();
-  const [query, setQuery] = useState("");
-
-  if (!demo) {
-    return (
-      <div>
-        <div className="mb-8">
-          <h1 className="font-heading text-2xl font-medium tracking-tight text-zinc-900">Overview</h1>
-          <p className="text-[13px] text-zinc-500 mt-1">Connect a YouTube channel to see your dashboard in action.</p>
-        </div>
-        <div className="bg-white rounded-2xl border border-zinc-200 p-10 text-center max-w-lg mx-auto">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#7B6EF6] to-[#E96BF5] flex items-center justify-center mx-auto mb-5">
-            <IconSearch size={24} className="text-white" />
-          </div>
-          <h2 className="font-heading text-lg font-medium text-zinc-900 mb-2">Test with a real channel</h2>
-          <p className="text-[13px] text-zinc-400 mb-6 leading-relaxed">
-            Paste any YouTube channel link below. We&apos;ll pull real stats and set up a simulated team so you can see exactly how Monitube works.
-          </p>
-          {error && <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-100 text-[13px] text-red-600">{error}</div>}
-          <div className="flex gap-2">
-            <input type="text" value={query} onChange={e => setQuery(e.target.value)}
-              onKeyDown={e => e.key === "Enter" && loadDemo(query)}
-              placeholder="youtube.com/@channel or @handle..."
-              className="flex-1 px-4 py-3 rounded-xl border border-zinc-200 text-[13px] text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-[#7B6EF6]/30 focus:border-[#7B6EF6]/50" />
-            <button onClick={() => loadDemo(query)} disabled={loading || !query.trim()}
-              className="px-5 py-3 rounded-xl bg-gradient-to-r from-[#7B6EF6] to-[#E96BF5] text-white text-[13px] font-medium disabled:opacity-50 cursor-pointer hover:opacity-90 active:scale-[0.98] transition-all flex items-center gap-2">
-              {loading ? <IconLoader2 size={16} className="animate-spin" /> : null}
-              {loading ? "Loading..." : "Load Demo"}
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  const { channel, members, videos } = demo;
-  const totalRecentViews = videos.reduce((s, v) => s + v.views, 0);
-  const totalEstRevenue = videos.reduce((s, v) => s + (v.estimatedRevenue ?? 0), 0);
-  const avgViewsPerVideo = videos.length > 0 ? Math.round(totalRecentViews / videos.length) : 0;
-  const summary = generateSummary(demo);
-
   return (
     <div>
-      {/* Channel header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          {channel.thumbnail && <img src={channel.thumbnail} alt={channel.name} className="w-10 h-10 rounded-full" />}
-          <div>
-            <h1 className="font-heading text-2xl font-medium tracking-tight text-zinc-900">{channel.name}</h1>
-            <p className="text-[13px] text-zinc-500">{fmt(channel.subscribers)} subscribers</p>
-          </div>
-        </div>
+      <div className="mb-8">
+        <h1 className="font-heading text-2xl font-medium tracking-tight text-zinc-900">
+          Welcome to Monitube
+        </h1>
+        <p className="text-[13px] text-zinc-500 mt-1">
+          Manage your YouTube team — projects, pay, and portfolios in one place.
+        </p>
       </div>
 
-      {/* AI Summary */}
-      <div className="bg-gradient-to-r from-[#7B6EF6]/5 to-[#E96BF5]/5 border border-[#7B6EF6]/10 rounded-2xl p-5 mb-6">
-        <div className="flex items-start gap-3">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#7B6EF6] to-[#E96BF5] flex items-center justify-center shrink-0 mt-0.5">
-            <IconSparkles size={16} className="text-white" />
-          </div>
-          <div>
-            <p className="text-[11px] text-[#7B6EF6] font-medium uppercase tracking-wider mb-1.5">Quick Summary</p>
-            <p className="text-[13px] text-zinc-700 leading-relaxed">{summary}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Primary stat cards: Views and Revenue lead */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-        <div className="bg-white rounded-2xl border border-zinc-200 p-5">
-          <p className="text-[11px] text-zinc-400 uppercase tracking-wider font-medium mb-3">Total Views</p>
-          <p className="font-heading text-3xl font-medium tracking-tight text-zinc-900 font-mono">{fmt(totalRecentViews)}</p>
-          <p className="text-[12px] text-zinc-400 mt-1">across {videos.length} recent videos · avg {fmt(avgViewsPerVideo)} per video</p>
-        </div>
-        <div className="bg-white rounded-2xl border border-zinc-200 p-5">
-          <div className="flex items-center gap-2 mb-3">
-            <IconCurrencyDollar size={14} className="text-emerald-500" />
-            <p className="text-[11px] text-zinc-400 uppercase tracking-wider font-medium">Estimated Revenue</p>
-          </div>
-          <p className="font-heading text-3xl font-medium tracking-tight text-emerald-700 font-mono">{fmtDollars(totalEstRevenue)}</p>
-          <p className="text-[12px] text-zinc-400 mt-1">at ~${channel.estimatedRpm ?? 4} RPM · {videos.length} videos</p>
-        </div>
-      </div>
-
-      {/* Secondary context: Retention, CTR, Team — smaller cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
-        <div className="bg-white rounded-xl border border-zinc-100 px-4 py-3">
-          <p className="text-[10px] text-zinc-400 uppercase tracking-wider font-medium mb-1">
-            Avg Retention <span className="normal-case tracking-normal font-normal text-zinc-300">· watch duration</span>
-          </p>
-          <p className="text-[18px] font-medium text-zinc-700 font-mono">{channel.avgRetention}%</p>
-        </div>
-        <div className="bg-white rounded-xl border border-zinc-100 px-4 py-3">
-          <p className="text-[10px] text-zinc-400 uppercase tracking-wider font-medium mb-1">
-            Avg CTR <span className="normal-case tracking-normal font-normal text-zinc-300">· click rate</span>
-          </p>
-          <p className="text-[18px] font-medium text-zinc-700 font-mono">{channel.avgCtr}%</p>
-        </div>
-        <div className="bg-white rounded-xl border border-zinc-100 px-4 py-3">
-          <p className="text-[10px] text-zinc-400 uppercase tracking-wider font-medium mb-1">Team Members</p>
-          <p className="text-[18px] font-medium text-zinc-700 font-mono">{members.length}</p>
-        </div>
-      </div>
-
-      {/* Team performance table */}
-      <div className="bg-white rounded-2xl border border-zinc-200 p-6 mb-6">
-        <div className="flex items-center justify-between mb-5">
-          <div>
-            <h2 className="font-heading text-lg font-medium text-zinc-900">Team Performance</h2>
-            <p className="text-[11px] text-zinc-400 mt-0.5">Views and estimated revenue generated by each team member</p>
-          </div>
-          <Link href="/dashboard/team" className="text-[12px] text-[#7B6EF6] hover:text-[#6358d4] flex items-center gap-1 transition-colors">
-            View all <IconArrowRight size={12} />
+      {/* Three pillars */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+        {PILLARS.map(p => (
+          <Link key={p.title} href={p.href}
+            className="bg-white rounded-2xl border border-zinc-200 p-6 hover:border-zinc-300 hover:shadow-sm transition-all group">
+            <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${p.color} flex items-center justify-center mb-4`}>
+              <p.icon size={20} className="text-white" />
+            </div>
+            <h2 className="font-heading text-lg font-medium text-zinc-900 mb-1.5">{p.title}</h2>
+            <p className="text-[13px] text-zinc-500 leading-relaxed mb-3">{p.desc}</p>
+            <span className="text-[12px] text-[#7B6EF6] font-medium flex items-center gap-1 group-hover:gap-2 transition-all">
+              Open <IconArrowRight size={13} />
+            </span>
           </Link>
-        </div>
+        ))}
+      </div>
 
-        <div className="overflow-x-auto -mx-6 px-6">
-          <table className="w-full text-left min-w-[700px]">
-            <thead>
-              <tr className="border-b border-zinc-100">
-                <th className="text-[11px] text-zinc-400 uppercase tracking-wider font-medium pb-3 pr-4">Member</th>
-                <th className="text-[11px] text-zinc-400 uppercase tracking-wider font-medium pb-3 pr-4">Role</th>
-                <th className="text-[11px] text-zinc-400 uppercase tracking-wider font-medium pb-3 pr-4">Avg Views</th>
-                <th className="text-[11px] text-zinc-400 uppercase tracking-wider font-medium pb-3 pr-4">Est. Revenue</th>
-                <th className="text-[11px] text-zinc-400 uppercase tracking-wider font-medium pb-3 pr-4">
-                  Retention / CTR
-                </th>
-                <th className="text-[11px] text-zinc-400 uppercase tracking-wider font-medium pb-3 pr-4">Videos</th>
-                <th className="text-[11px] text-zinc-400 uppercase tracking-wider font-medium pb-3">Trend</th>
-              </tr>
-            </thead>
-            <tbody>
-              {members.map(m => {
-                return (
-                  <tr key={m.id} className="border-b border-zinc-50 last:border-0 hover:bg-zinc-50/50 transition-colors">
-                    <td className="py-3.5 pr-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#7B6EF6] to-[#E96BF5] flex items-center justify-center text-white text-[12px] font-semibold font-heading shrink-0">
-                          {m.avatar}
-                        </div>
-                        <div>
-                          <p className="text-[13px] font-medium text-zinc-900">{m.name}</p>
-                          <p className="text-[11px] text-zinc-400">Since {new Date(m.joinedAt).toLocaleDateString("en-US", { month: "short", year: "numeric" })}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-3.5 pr-4">
-                      <span className={`text-[11px] font-medium px-2 py-1 rounded-full ${ROLE_COLORS[m.role] ?? "bg-zinc-100 text-zinc-600"}`}>
-                        {ROLE_LABELS[m.role] ?? m.role}
-                      </span>
-                    </td>
-                    <td className="py-3.5 pr-4">
-                      <p className="text-[14px] font-medium text-zinc-900 font-mono">{fmt(m.avgViews)}</p>
-                    </td>
-                    <td className="py-3.5 pr-4">
-                      <p className="text-[14px] font-medium text-emerald-700 font-mono">{fmtDollars(m.estimatedRevenueGenerated ?? 0)}</p>
-                    </td>
-                    <td className="py-3.5 pr-4">
-                      <p className="text-[12px] text-zinc-500 font-mono">{m.avgRetention}% ret · {m.avgCtr}% ctr</p>
-                    </td>
-                    <td className="py-3.5 pr-4">
-                      <p className="text-[13px] text-zinc-700 font-mono">{m.videosCredited}</p>
-                    </td>
-                    <td className="py-3.5">
-                      <div className="flex items-center gap-1.5">
-                        {m.trend === "up" && <><IconTrendingUp size={16} className="text-emerald-500" /><span className="text-[11px] text-emerald-600">Up</span></>}
-                        {m.trend === "down" && <><IconTrendingDown size={16} className="text-red-400" /><span className="text-[11px] text-red-500">Down</span></>}
-                        {m.trend === "stable" && <><IconMinus size={16} className="text-zinc-300" /><span className="text-[11px] text-zinc-400">Stable</span></>}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+      {/* Quick actions */}
+      <div className="bg-white rounded-2xl border border-zinc-200 p-6 mb-6">
+        <h2 className="font-heading text-lg font-medium text-zinc-900 mb-4">Quick Actions</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {QUICK_ACTIONS.map(a => (
+            <Link key={a.label} href={a.href}
+              className="flex items-center gap-3 p-3.5 rounded-xl border border-zinc-100 hover:bg-zinc-50 hover:border-zinc-200 transition-colors">
+              <a.icon size={18} className="text-zinc-400" stroke={1.6} />
+              <span className="text-[13px] text-zinc-700">{a.label}</span>
+              <IconArrowRight size={13} className="ml-auto text-zinc-300" />
+            </Link>
+          ))}
         </div>
       </div>
 
-      {/* Team Cost Efficiency insight */}
-      {totalEstRevenue > 0 && (
-        <div className="bg-white rounded-2xl border border-zinc-200 p-6 mb-6">
-          <div className="flex items-center gap-2 mb-4">
-            <IconCurrencyDollar size={18} className="text-emerald-500" />
-            <h2 className="font-heading text-lg font-medium text-zinc-900">Team Cost Efficiency</h2>
-          </div>
-          <p className="text-[13px] text-zinc-500 mb-4">
-            Your {videos.length} recent videos generated an estimated <span className="font-medium text-emerald-700 font-mono">{fmtDollars(totalEstRevenue)}</span> in revenue.
-            Use the <Link href="/dashboard/calculator" className="text-[#7B6EF6] hover:text-[#6358d4] underline underline-offset-2">Pay Calculator</Link> to compare each team member&apos;s cost against the revenue their videos produce.
-          </p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {members.slice(0, 3).map(m => {
-              const costPerView = m.avgViews > 0 ? (m.estimatedRevenueGenerated ?? 0) / m.videosCredited : 0;
-              return (
-                <div key={m.id} className="rounded-xl bg-zinc-50 border border-zinc-100 px-4 py-3">
-                  <p className="text-[11px] text-zinc-400 mb-1">{m.name.split(" ")[0]}</p>
-                  <p className="text-[15px] font-medium text-emerald-700 font-mono">{fmtDollars(m.estimatedRevenueGenerated ?? 0)}</p>
-                  <p className="text-[10px] text-zinc-400 mt-0.5">~{fmtDollars(costPerView)} per video</p>
-                </div>
-              );
-            })}
-          </div>
+      {/* Getting started checklist */}
+      <div className="bg-zinc-50 rounded-2xl border border-zinc-200 p-6">
+        <h2 className="font-heading text-lg font-medium text-zinc-900 mb-1">Getting Started</h2>
+        <p className="text-[13px] text-zinc-500 mb-4">Set up your workspace in 4 steps.</p>
+        <div className="space-y-2.5">
+          {[
+            { step: "Add your team members", done: false },
+            { step: "Add your first video to the pipeline", done: false },
+            { step: "Log your first payment", done: false },
+            { step: "Set up a team member's public profile", done: false },
+          ].map((s, i) => (
+            <div key={i} className="flex items-center gap-3 bg-white rounded-xl border border-zinc-100 px-4 py-3">
+              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                s.done ? "border-emerald-500 bg-emerald-500" : "border-zinc-300"
+              }`}>
+                {s.done && (
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                    <path d="M2 5L4 7L8 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                )}
+              </div>
+              <span className={`text-[13px] ${s.done ? "text-zinc-400 line-through" : "text-zinc-700"}`}>{s.step}</span>
+            </div>
+          ))}
         </div>
-      )}
-
-      {/* Pending approvals */}
-      <div className="bg-white rounded-2xl border border-zinc-200 p-6">
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="font-heading text-lg font-medium text-zinc-900">Pending Approvals</h2>
-          <span className="text-[11px] bg-zinc-100 text-zinc-500 px-2 py-0.5 rounded-full font-medium">0</span>
-        </div>
-        <p className="text-zinc-400 text-[13px] text-center py-8">No pending credit submissions.</p>
       </div>
     </div>
   );
