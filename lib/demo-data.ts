@@ -281,54 +281,67 @@ export function generateActivity(demo: DemoData): ActivityItem[] {
   return items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
 
+function fmtDollars(n: number): string {
+  if (n >= 1_000_000) return "$" + (n / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
+  if (n >= 1_000) return "$" + (n / 1_000).toFixed(1).replace(/\.0$/, "") + "K";
+  return "$" + Math.round(n).toLocaleString();
+}
+
+function fmtViews(n: number): string {
+  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
+  if (n >= 1_000) return (n / 1_000).toFixed(0) + "K";
+  return n.toLocaleString();
+}
+
 export function generateSummary(demo: DemoData): string {
   const { members, videos, channel } = demo;
-  const topPerformer = [...members].sort((a, b) => {
-    const aVal = a.role === "thumbnail_designer" ? a.avgCtr : a.avgRetention;
-    const bVal = b.role === "thumbnail_designer" ? b.avgCtr : b.avgRetention;
-    const aAvg = a.role === "thumbnail_designer" ? channel.avgCtr : channel.avgRetention;
-    const bAvg = b.role === "thumbnail_designer" ? channel.avgCtr : channel.avgRetention;
-    return (bVal - bAvg) - (aVal - aAvg);
-  })[0];
-
-  const newestMember = [...members].sort(
-    (a, b) => new Date(b.joinedAt).getTime() - new Date(a.joinedAt).getTime()
-  )[0];
 
   const totalRecentViews = videos.reduce((s, v) => s + v.views, 0);
+  const totalEstRevenue = videos.reduce((s, v) => s + (v.estimatedRevenue ?? 0), 0);
   const bestVideo = [...videos].sort((a, b) => b.views - a.views)[0];
+  const topByViews = [...members].sort((a, b) => b.avgViews - a.avgViews)[0];
 
   const parts: string[] = [];
 
-  if (topPerformer) {
-    const stat = topPerformer.role === "thumbnail_designer" ? "CTR" : "retention";
-    const val = topPerformer.role === "thumbnail_designer" ? topPerformer.avgCtr : topPerformer.avgRetention;
-    const avg = topPerformer.role === "thumbnail_designer" ? channel.avgCtr : channel.avgRetention;
-    const diff = Math.round((val - avg) * 10) / 10;
+  // Lead with views and revenue
+  if (totalRecentViews > 0 && totalEstRevenue > 0) {
     parts.push(
-      `${topPerformer.name.split(" ")[0]} is your strongest team member right now — their ${stat} is ${val}%, which is ${diff}pts above your channel average.`
+      `Your team generated an estimated ${fmtDollars(totalEstRevenue)} across ${videos.length} videos (${fmtViews(totalRecentViews)} total views at ~$${channel.estimatedRpm ?? 4} RPM).`
     );
-  }
-
-  if (bestVideo) {
-    const credits = bestVideo.credits.map(c => c.memberName.split(" ")[0]).join(" and ");
-    parts.push(
-      `Your best-performing recent video has ${(bestVideo.views / 1000).toFixed(0)}K views, credited to ${credits}.`
-    );
-  }
-
-  if (newestMember && newestMember.videosCredited >= 3) {
-    const stat = newestMember.role === "thumbnail_designer" ? newestMember.avgCtr : newestMember.avgRetention;
-    parts.push(
-      `${newestMember.name.split(" ")[0]} is still new but already averaging ${stat}% — worth watching.`
-    );
-  }
-
-  if (totalRecentViews > 0) {
+  } else if (totalRecentViews > 0) {
     const avgViews = Math.round(totalRecentViews / videos.length);
     parts.push(
-      `Across ${videos.length} recent videos, your team is averaging ${(avgViews / 1000).toFixed(0)}K views per video.`
+      `Across ${videos.length} recent videos, your team is averaging ${fmtViews(avgViews)} views per video.`
     );
+  }
+
+  // Highlight top performer by views
+  if (topByViews) {
+    parts.push(
+      `${topByViews.name.split(" ")[0]}'s videos average ${fmtViews(topByViews.avgViews)} views — the highest on the team.`
+    );
+  }
+
+  // Best video
+  if (bestVideo) {
+    const credits = bestVideo.credits.map(c => c.memberName.split(" ")[0]).join(" and ");
+    const revStr = bestVideo.estimatedRevenue ? `, earning an estimated ${fmtDollars(bestVideo.estimatedRevenue)}` : "";
+    parts.push(
+      `Your top video hit ${fmtViews(bestVideo.views)} views${revStr}, credited to ${credits}.`
+    );
+  }
+
+  // Cost efficiency insight
+  const totalMemberRevenue = members.reduce((s, m) => s + (m.estimatedRevenueGenerated ?? 0), 0);
+  if (totalMemberRevenue > 0) {
+    const avgCostPerView = members.length > 0
+      ? totalRecentViews / members.length
+      : 0;
+    if (avgCostPerView > 0) {
+      parts.push(
+        `Use the Pay Calculator to see each role's cost per view and whether they're worth the investment.`
+      );
+    }
   }
 
   return parts.join(" ");

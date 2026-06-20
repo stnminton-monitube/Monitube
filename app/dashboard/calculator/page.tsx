@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { IconCalculator, IconCoin, IconInfoCircle } from "@tabler/icons-react";
+import { IconCalculator, IconInfoCircle } from "@tabler/icons-react";
 
 type PayModel = "per_video" | "monthly" | "revenue_share" | "hybrid";
 
@@ -49,12 +49,23 @@ function fmt(n: number): string {
   return "$" + Math.round(n).toLocaleString();
 }
 
+function formatViewsInput(value: string): string {
+  const num = value.replace(/[^\d]/g, "");
+  if (!num) return "";
+  return parseInt(num).toLocaleString();
+}
+
+function parseViewsInput(value: string): number {
+  return parseInt(value.replace(/[^\d]/g, "") || "0");
+}
+
 export default function CalculatorPage() {
   const [role, setRole] = useState("editor");
   const [model, setModel] = useState<PayModel>("per_video");
   const [videosPerMonth, setVideosPerMonth] = useState(8);
-  const [avgRpm, setAvgRpm] = useState(5);
-  const [avgViews, setAvgViews] = useState(50000);
+  const [avgRpm, setAvgRpm] = useState(4);
+  const [avgViews, setAvgViews] = useState(100000);
+  const [viewsInput, setViewsInput] = useState("100,000");
   const [complexity, setComplexity] = useState("standard");
 
   const roleInfo = ROLE_DATA[role];
@@ -96,6 +107,8 @@ export default function CalculatorPage() {
   }
 
   const teamCostPct = (suggestedPay / monthlyRevenue) * 100;
+  // Cost per 1K views for this role
+  const costPer1kViews = avgViews > 0 ? suggestedPay / (avgViews / 1000) : 0;
 
   return (
     <div>
@@ -122,12 +135,18 @@ export default function CalculatorPage() {
                 <label className="text-[12px] text-zinc-600 font-medium mb-1.5 flex items-center gap-1">
                   RPM <span className="text-zinc-400 font-normal">($ per 1K views)</span>
                 </label>
-                <input type="number" value={avgRpm} onChange={e => setAvgRpm(Math.max(0.5, parseFloat(e.target.value) || 0.5))} step="0.5"
+                <input type="number" value={avgRpm} onChange={e => setAvgRpm(Math.max(0.5, parseFloat(e.target.value) || 0.5))} step="0.5" min="0.5"
                   className="w-full px-3 py-2.5 rounded-xl border border-zinc-200 text-[14px] text-zinc-900 font-mono focus:outline-none focus:ring-2 focus:ring-[#7B6EF6]/20 focus:border-[#7B6EF6]/40" />
               </div>
               <div>
                 <label className="text-[12px] text-zinc-600 font-medium mb-1.5 block">Avg views per video</label>
-                <input type="number" value={avgViews} onChange={e => setAvgViews(Math.max(100, parseInt(e.target.value) || 100))} step="1000"
+                <input type="text" inputMode="numeric" value={viewsInput}
+                  onChange={e => {
+                    const formatted = formatViewsInput(e.target.value);
+                    setViewsInput(formatted);
+                    setAvgViews(parseViewsInput(e.target.value));
+                  }}
+                  placeholder="100,000"
                   className="w-full px-3 py-2.5 rounded-xl border border-zinc-200 text-[14px] text-zinc-900 font-mono focus:outline-none focus:ring-2 focus:ring-[#7B6EF6]/20 focus:border-[#7B6EF6]/40" />
               </div>
             </div>
@@ -200,8 +219,13 @@ export default function CalculatorPage() {
             </div>
 
             <div className="mb-5">
-              <p className="font-heading text-3xl font-medium tracking-tight text-zinc-900 mb-1">{payLabel}</p>
+              <p className="font-heading text-3xl font-medium tracking-tight text-zinc-900 font-mono mb-1">{payLabel}</p>
               <p className="text-[12px] text-zinc-500 leading-relaxed">{payContext}</p>
+              {costPer1kViews > 0 && (
+                <p className="text-[12px] text-zinc-500 mt-2">
+                  Cost per 1K views: <span className="font-medium text-zinc-900 font-mono">{fmt(costPer1kViews)}</span>
+                </p>
+              )}
             </div>
 
             {/* Range context */}

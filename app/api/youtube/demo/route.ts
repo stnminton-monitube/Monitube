@@ -173,6 +173,7 @@ export async function POST(req: NextRequest) {
       ctr,
       contentType,
       watchTimeHours,
+      estimatedRevenue: 0, // placeholder, calculated after RPM is determined
       credits,
     };
   });
@@ -238,18 +239,54 @@ export async function POST(req: NextRequest) {
     ? Math.round(videos.reduce((s: number, v: { ctr: number }) => s + v.ctr, 0) / videos.length * 10) / 10
     : 0;
 
+  // Estimate RPM based on channel size (larger channels tend to have higher RPMs)
+  const subscribers = parseInt(ch.statistics.subscriberCount ?? "0");
+  const rpmRng = seededRandom(subscribers + 42);
+  const rpmBase = subscribers >= 5_000_000 ? 5 : subscribers >= 1_000_000 ? 4 : subscribers >= 100_000 ? 3.5 : 2.5;
+  const estimatedRpm = Math.round((rpmBase + rpmRng() * 3) * 100) / 100;
+
+  // Calculate estimated revenue for each video
+  videos.forEach((v: { views: number; estimatedRevenue: number }) => {
+    v.estimatedRevenue = Math.round((v.views / 1000) * estimatedRpm * 100) / 100;
+  });
+
+  const totalEstimatedRevenue = Math.round(
+    videos.reduce((s: number, v: { estimatedRevenue: number }) => s + v.estimatedRevenue, 0) * 100
+  ) / 100;
+
+  // Add estimated revenue generated per member
+  const membersWithRevenue = (members as Array<{ id: string; name: string; role: string; avatar: string; joinedAt: string; videosCredited: number; avgViews: number; avgRetention: number; avgCtr: number; totalWatchTime: number; trend: "up" | "down" | "stable" }>).map(member => {
+    const creditedVideos = videos.filter(
+      (v: { credits: Array<{ memberId: string; weight: number }> }) =>
+        v.credits.some((c: { memberId: string }) => c.memberId === member.id)
+    );
+    const revenueGenerated = creditedVideos.reduce(
+      (sum: number, v: { estimatedRevenue: number; credits: Array<{ memberId: string; weight: number }> }) => {
+        const credit = v.credits.find((c: { memberId: string }) => c.memberId === member.id);
+        return sum + (v.estimatedRevenue * ((credit?.weight ?? 100) / 100));
+      },
+      0
+    );
+    return {
+      ...member,
+      estimatedRevenueGenerated: Math.round(revenueGenerated * 100) / 100,
+    };
+  });
+
   return NextResponse.json({
     channel: {
       id: channelId,
       name: ch.snippet.title,
       thumbnail: ch.snippet.thumbnails?.medium?.url,
-      subscribers: parseInt(ch.statistics.subscriberCount ?? "0"),
+      subscribers,
       totalViews: parseInt(ch.statistics.viewCount ?? "0"),
       videoCount: parseInt(ch.statistics.videoCount ?? "0"),
       avgRetention: channelAvgRetention,
       avgCtr: channelAvgCtr,
+      estimatedRpm,
+      totalEstimatedRevenue,
     },
-    members,
+    members: membersWithRevenue,
     videos,
   });
 }

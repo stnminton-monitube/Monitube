@@ -6,18 +6,21 @@ type Member = {
   id: string; name: string; role: string; avatar: string; joinedAt: string;
   videosCredited: number; avgViews: number; avgRetention: number; avgCtr: number;
   totalWatchTime: number; trend: "up" | "down" | "stable";
+  estimatedRevenueGenerated: number;
 };
 
 type Video = {
   id: string; title: string; thumbnail: string; publishedAt: string;
   views: number; likes: number; comments: number; retention: number;
   ctr: number; contentType: string; watchTimeHours: number;
+  estimatedRevenue: number;
   credits: Array<{ memberId: string; memberName: string; role: string; weight: number }>;
 };
 
 type Channel = {
   id: string; name: string; thumbnail: string; subscribers: number;
   totalViews: number; videoCount: number; avgRetention: number; avgCtr: number;
+  estimatedRpm: number; totalEstimatedRevenue: number;
 };
 
 export type DemoData = {

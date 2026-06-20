@@ -2,7 +2,7 @@
 
 import { useDemo } from "@/components/dashboard/DemoProvider";
 import { generateSummary } from "@/lib/demo-data";
-import { IconSearch, IconLoader2, IconTrendingUp, IconTrendingDown, IconMinus, IconArrowRight, IconBrain, IconSparkles } from "@tabler/icons-react";
+import { IconSearch, IconLoader2, IconTrendingUp, IconTrendingDown, IconMinus, IconArrowRight, IconSparkles, IconCurrencyDollar } from "@tabler/icons-react";
 import { useState } from "react";
 import Link from "next/link";
 
@@ -10,6 +10,12 @@ function fmt(n: number): string {
   if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
   if (n >= 1_000) return (n / 1_000).toFixed(1).replace(/\.0$/, "") + "K";
   return n.toLocaleString();
+}
+
+function fmtDollars(n: number): string {
+  if (n >= 1_000_000) return "$" + (n / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
+  if (n >= 1_000) return "$" + (n / 1_000).toFixed(1).replace(/\.0$/, "") + "K";
+  return "$" + Math.round(n).toLocaleString();
 }
 
 const ROLE_COLORS: Record<string, string> = {
@@ -26,18 +32,6 @@ const ROLE_LABELS: Record<string, string> = {
   thumbnail_designer: "Designer",
   assistant_editor: "Asst. Editor",
   manager: "Manager",
-};
-
-const PRIMARY_STAT_KEY: Record<string, "retention" | "ctr"> = {
-  editor: "retention",
-  writer: "retention",
-  thumbnail_designer: "ctr",
-  assistant_editor: "retention",
-};
-
-const STAT_EXPLAIN: Record<string, string> = {
-  retention: "how long people watch",
-  ctr: "how often people click the thumbnail",
 };
 
 export default function DashboardPage() {
@@ -78,6 +72,8 @@ export default function DashboardPage() {
 
   const { channel, members, videos } = demo;
   const totalRecentViews = videos.reduce((s, v) => s + v.views, 0);
+  const totalEstRevenue = videos.reduce((s, v) => s + (v.estimatedRevenue ?? 0), 0);
+  const avgViewsPerVideo = videos.length > 0 ? Math.round(totalRecentViews / videos.length) : 0;
   const summary = generateSummary(demo);
 
   return (
@@ -106,37 +102,40 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Stat cards with context */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      {/* Primary stat cards: Views and Revenue lead */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
         <div className="bg-white rounded-2xl border border-zinc-200 p-5">
           <p className="text-[11px] text-zinc-400 uppercase tracking-wider font-medium mb-3">Total Views</p>
-          <p className="font-heading text-3xl font-medium tracking-tight text-zinc-900">{fmt(totalRecentViews)}</p>
-          <p className="text-[12px] text-zinc-400 mt-1">across {videos.length} recent videos</p>
+          <p className="font-heading text-3xl font-medium tracking-tight text-zinc-900 font-mono">{fmt(totalRecentViews)}</p>
+          <p className="text-[12px] text-zinc-400 mt-1">across {videos.length} recent videos · avg {fmt(avgViewsPerVideo)} per video</p>
         </div>
         <div className="bg-white rounded-2xl border border-zinc-200 p-5">
-          <p className="text-[11px] text-zinc-400 uppercase tracking-wider font-medium mb-3">
-            Avg Retention <span className="normal-case tracking-normal font-normal text-zinc-300">· how long people watch</span>
-          </p>
-          <p className="font-heading text-3xl font-medium tracking-tight text-zinc-900">{channel.avgRetention}%</p>
-          <p className="text-[12px] text-zinc-400 mt-1">
-            {channel.avgRetention >= 50 ? "strong — above 50% is great" : channel.avgRetention >= 40 ? "solid — room to grow" : "below average — focus on intros"}
-          </p>
+          <div className="flex items-center gap-2 mb-3">
+            <IconCurrencyDollar size={14} className="text-emerald-500" />
+            <p className="text-[11px] text-zinc-400 uppercase tracking-wider font-medium">Estimated Revenue</p>
+          </div>
+          <p className="font-heading text-3xl font-medium tracking-tight text-emerald-700 font-mono">{fmtDollars(totalEstRevenue)}</p>
+          <p className="text-[12px] text-zinc-400 mt-1">at ~${channel.estimatedRpm ?? 4} RPM · {videos.length} videos</p>
         </div>
-        <div className="bg-white rounded-2xl border border-zinc-200 p-5">
-          <p className="text-[11px] text-zinc-400 uppercase tracking-wider font-medium mb-3">
-            Avg CTR <span className="normal-case tracking-normal font-normal text-zinc-300">· thumbnail click rate</span>
+      </div>
+
+      {/* Secondary context: Retention, CTR, Team — smaller cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
+        <div className="bg-white rounded-xl border border-zinc-100 px-4 py-3">
+          <p className="text-[10px] text-zinc-400 uppercase tracking-wider font-medium mb-1">
+            Avg Retention <span className="normal-case tracking-normal font-normal text-zinc-300">· watch duration</span>
           </p>
-          <p className="font-heading text-3xl font-medium tracking-tight text-zinc-900">{channel.avgCtr}%</p>
-          <p className="text-[12px] text-zinc-400 mt-1">
-            {channel.avgCtr >= 8 ? "excellent — thumbnails are working" : channel.avgCtr >= 5 ? "average — test new styles" : "low — thumbnails need work"}
-          </p>
+          <p className="text-[18px] font-medium text-zinc-700 font-mono">{channel.avgRetention}%</p>
         </div>
-        <div className="bg-white rounded-2xl border border-zinc-200 p-5">
-          <p className="text-[11px] text-zinc-400 uppercase tracking-wider font-medium mb-3">Team Members</p>
-          <p className="font-heading text-3xl font-medium tracking-tight text-zinc-900">{members.length}</p>
-          <p className="text-[12px] text-zinc-400 mt-1">
-            {members.length} active across {new Set(members.map(m => m.role)).size} roles
+        <div className="bg-white rounded-xl border border-zinc-100 px-4 py-3">
+          <p className="text-[10px] text-zinc-400 uppercase tracking-wider font-medium mb-1">
+            Avg CTR <span className="normal-case tracking-normal font-normal text-zinc-300">· click rate</span>
           </p>
+          <p className="text-[18px] font-medium text-zinc-700 font-mono">{channel.avgCtr}%</p>
+        </div>
+        <div className="bg-white rounded-xl border border-zinc-100 px-4 py-3">
+          <p className="text-[10px] text-zinc-400 uppercase tracking-wider font-medium mb-1">Team Members</p>
+          <p className="text-[18px] font-medium text-zinc-700 font-mono">{members.length}</p>
         </div>
       </div>
 
@@ -145,7 +144,7 @@ export default function DashboardPage() {
         <div className="flex items-center justify-between mb-5">
           <div>
             <h2 className="font-heading text-lg font-medium text-zinc-900">Team Performance</h2>
-            <p className="text-[11px] text-zinc-400 mt-0.5">Each person&apos;s key stat for their role, compared to your channel average</p>
+            <p className="text-[11px] text-zinc-400 mt-0.5">Views and estimated revenue generated by each team member</p>
           </div>
           <Link href="/dashboard/team" className="text-[12px] text-[#7B6EF6] hover:text-[#6358d4] flex items-center gap-1 transition-colors">
             View all <IconArrowRight size={12} />
@@ -153,25 +152,22 @@ export default function DashboardPage() {
         </div>
 
         <div className="overflow-x-auto -mx-6 px-6">
-          <table className="w-full text-left min-w-[640px]">
+          <table className="w-full text-left min-w-[700px]">
             <thead>
               <tr className="border-b border-zinc-100">
                 <th className="text-[11px] text-zinc-400 uppercase tracking-wider font-medium pb-3 pr-4">Member</th>
                 <th className="text-[11px] text-zinc-400 uppercase tracking-wider font-medium pb-3 pr-4">Role</th>
-                <th className="text-[11px] text-zinc-400 uppercase tracking-wider font-medium pb-3 pr-4">Key Stat</th>
                 <th className="text-[11px] text-zinc-400 uppercase tracking-wider font-medium pb-3 pr-4">Avg Views</th>
+                <th className="text-[11px] text-zinc-400 uppercase tracking-wider font-medium pb-3 pr-4">Est. Revenue</th>
+                <th className="text-[11px] text-zinc-400 uppercase tracking-wider font-medium pb-3 pr-4">
+                  Retention / CTR
+                </th>
                 <th className="text-[11px] text-zinc-400 uppercase tracking-wider font-medium pb-3 pr-4">Videos</th>
                 <th className="text-[11px] text-zinc-400 uppercase tracking-wider font-medium pb-3">Trend</th>
               </tr>
             </thead>
             <tbody>
               {members.map(m => {
-                const statKey = PRIMARY_STAT_KEY[m.role] ?? "retention";
-                const value = statKey === "ctr" ? m.avgCtr : m.avgRetention;
-                const avg = statKey === "ctr" ? channel.avgCtr : channel.avgRetention;
-                const diff = Math.round((value - avg) * 10) / 10;
-                const explain = STAT_EXPLAIN[statKey];
-
                 return (
                   <tr key={m.id} className="border-b border-zinc-50 last:border-0 hover:bg-zinc-50/50 transition-colors">
                     <td className="py-3.5 pr-4">
@@ -191,16 +187,13 @@ export default function DashboardPage() {
                       </span>
                     </td>
                     <td className="py-3.5 pr-4">
-                      <p className="text-[14px] font-medium text-zinc-900 font-mono">{value}%</p>
-                      <p className="text-[11px]">
-                        <span className={diff >= 0 ? "text-emerald-600" : "text-red-500"}>
-                          {diff >= 0 ? "+" : ""}{diff}pts vs avg
-                        </span>
-                        <span className="text-zinc-300"> · {explain}</span>
-                      </p>
+                      <p className="text-[14px] font-medium text-zinc-900 font-mono">{fmt(m.avgViews)}</p>
                     </td>
                     <td className="py-3.5 pr-4">
-                      <p className="text-[13px] text-zinc-700 font-mono">{fmt(m.avgViews)}</p>
+                      <p className="text-[14px] font-medium text-emerald-700 font-mono">{fmtDollars(m.estimatedRevenueGenerated ?? 0)}</p>
+                    </td>
+                    <td className="py-3.5 pr-4">
+                      <p className="text-[12px] text-zinc-500 font-mono">{m.avgRetention}% ret · {m.avgCtr}% ctr</p>
                     </td>
                     <td className="py-3.5 pr-4">
                       <p className="text-[13px] text-zinc-700 font-mono">{m.videosCredited}</p>
@@ -219,6 +212,32 @@ export default function DashboardPage() {
           </table>
         </div>
       </div>
+
+      {/* Team Cost Efficiency insight */}
+      {totalEstRevenue > 0 && (
+        <div className="bg-white rounded-2xl border border-zinc-200 p-6 mb-6">
+          <div className="flex items-center gap-2 mb-4">
+            <IconCurrencyDollar size={18} className="text-emerald-500" />
+            <h2 className="font-heading text-lg font-medium text-zinc-900">Team Cost Efficiency</h2>
+          </div>
+          <p className="text-[13px] text-zinc-500 mb-4">
+            Your {videos.length} recent videos generated an estimated <span className="font-medium text-emerald-700 font-mono">{fmtDollars(totalEstRevenue)}</span> in revenue.
+            Use the <Link href="/dashboard/calculator" className="text-[#7B6EF6] hover:text-[#6358d4] underline underline-offset-2">Pay Calculator</Link> to compare each team member&apos;s cost against the revenue their videos produce.
+          </p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {members.slice(0, 3).map(m => {
+              const costPerView = m.avgViews > 0 ? (m.estimatedRevenueGenerated ?? 0) / m.videosCredited : 0;
+              return (
+                <div key={m.id} className="rounded-xl bg-zinc-50 border border-zinc-100 px-4 py-3">
+                  <p className="text-[11px] text-zinc-400 mb-1">{m.name.split(" ")[0]}</p>
+                  <p className="text-[15px] font-medium text-emerald-700 font-mono">{fmtDollars(m.estimatedRevenueGenerated ?? 0)}</p>
+                  <p className="text-[10px] text-zinc-400 mt-0.5">~{fmtDollars(costPerView)} per video</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Pending approvals */}
       <div className="bg-white rounded-2xl border border-zinc-200 p-6">

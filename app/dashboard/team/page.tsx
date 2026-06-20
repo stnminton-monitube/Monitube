@@ -1,13 +1,19 @@
 "use client";
 
 import { useDemo } from "@/components/dashboard/DemoProvider";
-import { IconTrendingUp, IconTrendingDown, IconMinus, IconArrowRight, IconEye, IconClock, IconVideo } from "@tabler/icons-react";
+import { IconTrendingUp, IconTrendingDown, IconMinus, IconArrowRight, IconClock, IconVideo, IconCurrencyDollar } from "@tabler/icons-react";
 import Link from "next/link";
 
 function fmt(n: number): string {
   if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
   if (n >= 1_000) return (n / 1_000).toFixed(1).replace(/\.0$/, "") + "K";
   return n.toLocaleString();
+}
+
+function fmtDollars(n: number): string {
+  if (n >= 1_000_000) return "$" + (n / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
+  if (n >= 1_000) return "$" + (n / 1_000).toFixed(1).replace(/\.0$/, "") + "K";
+  return "$" + Math.round(n).toLocaleString();
 }
 
 const ROLE_COLORS: Record<string, string> = {
@@ -22,13 +28,6 @@ const ROLE_LABELS: Record<string, string> = {
   writer: "Writer",
   thumbnail_designer: "Thumbnail Designer",
   assistant_editor: "Assistant Editor",
-};
-
-const PRIMARY_STAT: Record<string, string> = {
-  editor: "retention",
-  writer: "retention",
-  thumbnail_designer: "ctr",
-  assistant_editor: "retention",
 };
 
 export default function TeamPage() {
@@ -64,16 +63,12 @@ export default function TeamPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {members.map(m => {
-          const primaryType = PRIMARY_STAT[m.role] ?? "retention";
-          const primaryValue = primaryType === "ctr" ? m.avgCtr : m.avgRetention;
-          const primaryLabel = primaryType === "ctr" ? "Avg CTR" : "Avg Retention";
-          const channelAvg = primaryType === "ctr" ? channel.avgCtr : channel.avgRetention;
-          const diff = Math.round((primaryValue - channelAvg) * 10) / 10;
-
           const recentVideos = videos
             .filter(v => v.credits.some(c => c.memberId === m.id))
             .slice(-3)
             .reverse();
+
+          const trendLabel = m.trend === "up" ? "up from last period" : m.trend === "down" ? "down from last period" : "consistent";
 
           return (
             <div key={m.id} className="bg-white rounded-2xl border border-zinc-200 p-6 hover:border-zinc-300 transition-colors">
@@ -100,16 +95,17 @@ export default function TeamPage() {
                 </div>
               </div>
 
-              {/* Primary stat large */}
+              {/* Primary stat: Avg Views */}
               <div className="rounded-xl bg-zinc-50 border border-zinc-100 p-4 mb-4">
                 <div className="flex items-end justify-between">
                   <div>
-                    <p className="text-[10px] text-zinc-400 uppercase tracking-wider mb-1">{primaryLabel}</p>
-                    <p className="font-heading text-3xl font-medium tracking-tight text-zinc-900">{primaryValue}%</p>
+                    <p className="text-[10px] text-zinc-400 uppercase tracking-wider mb-1">Avg Views per Video</p>
+                    <p className="font-heading text-3xl font-medium tracking-tight text-zinc-900 font-mono">{fmt(m.avgViews)}</p>
                   </div>
-                  <p className={`text-[12px] font-medium ${diff >= 0 ? "text-emerald-600" : "text-red-500"}`}>
-                    {diff >= 0 ? "+" : ""}{diff}pts vs avg
-                  </p>
+                  <div className="text-right">
+                    <p className="text-[10px] text-zinc-400 uppercase tracking-wider mb-1">Est. Revenue</p>
+                    <p className="text-[18px] font-medium text-emerald-700 font-mono">{fmtDollars(m.estimatedRevenueGenerated ?? 0)}</p>
+                  </div>
                 </div>
               </div>
 
@@ -117,10 +113,10 @@ export default function TeamPage() {
               <div className="grid grid-cols-3 gap-2 mb-4">
                 <div className="rounded-lg bg-zinc-50 border border-zinc-100 px-3 py-2.5">
                   <div className="flex items-center gap-1 mb-1">
-                    <IconEye size={11} className="text-zinc-400" />
-                    <p className="text-[9px] text-zinc-400 uppercase tracking-wider">Avg Views</p>
+                    <IconVideo size={11} className="text-zinc-400" />
+                    <p className="text-[9px] text-zinc-400 uppercase tracking-wider">Videos</p>
                   </div>
-                  <p className="text-[14px] font-medium font-mono text-zinc-900">{fmt(m.avgViews)}</p>
+                  <p className="text-[14px] font-medium font-mono text-zinc-900">{m.videosCredited}</p>
                 </div>
                 <div className="rounded-lg bg-zinc-50 border border-zinc-100 px-3 py-2.5">
                   <div className="flex items-center gap-1 mb-1">
@@ -131,11 +127,19 @@ export default function TeamPage() {
                 </div>
                 <div className="rounded-lg bg-zinc-50 border border-zinc-100 px-3 py-2.5">
                   <div className="flex items-center gap-1 mb-1">
-                    <IconVideo size={11} className="text-zinc-400" />
-                    <p className="text-[9px] text-zinc-400 uppercase tracking-wider">Videos</p>
+                    <IconCurrencyDollar size={11} className="text-zinc-400" />
+                    <p className="text-[9px] text-zinc-400 uppercase tracking-wider">Trend</p>
                   </div>
-                  <p className="text-[14px] font-medium font-mono text-zinc-900">{m.videosCredited}</p>
+                  <p className="text-[12px] font-medium text-zinc-700">{trendLabel}</p>
                 </div>
+              </div>
+
+              {/* Retention/CTR context — plain language, no benchmarks */}
+              <div className="rounded-lg bg-zinc-50/50 border border-zinc-100 px-3 py-2.5 mb-4">
+                <p className="text-[11px] text-zinc-500 leading-relaxed">
+                  People watch <span className="font-medium text-zinc-700 font-mono">{m.avgRetention}%</span> of their videos on average.
+                  Thumbnails get clicked <span className="font-medium text-zinc-700 font-mono">{m.avgCtr}%</span> of the time.
+                </p>
               </div>
 
               {/* Recent videos */}
@@ -148,7 +152,10 @@ export default function TeamPage() {
                         <img src={v.thumbnail} alt="" className="w-14 h-8 rounded object-cover shrink-0" />
                         <div className="flex-1 min-w-0">
                           <p className="text-[11px] text-zinc-700 truncate">{v.title}</p>
-                          <p className="text-[10px] text-zinc-400">{fmt(v.views)} views · {v.retention}% ret</p>
+                          <p className="text-[10px] text-zinc-400">
+                            <span className="font-mono">{fmt(v.views)}</span> views
+                            {v.estimatedRevenue ? <> · est. <span className="text-emerald-600 font-mono">{fmtDollars(v.estimatedRevenue)}</span></> : null}
+                          </p>
                         </div>
                       </div>
                     ))}

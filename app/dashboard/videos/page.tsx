@@ -1,13 +1,19 @@
 "use client";
 
 import { useDemo } from "@/components/dashboard/DemoProvider";
-import { IconEye, IconThumbUp, IconMessage, IconArrowRight } from "@tabler/icons-react";
+import { IconThumbUp, IconMessage, IconArrowRight } from "@tabler/icons-react";
 import Link from "next/link";
 
 function fmt(n: number): string {
   if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
   if (n >= 1_000) return (n / 1_000).toFixed(1).replace(/\.0$/, "") + "K";
   return n.toLocaleString();
+}
+
+function fmtDollars(n: number): string {
+  if (n >= 1_000_000) return "$" + (n / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
+  if (n >= 1_000) return "$" + (n / 1_000).toFixed(1).replace(/\.0$/, "") + "K";
+  return "$" + Math.round(n).toLocaleString();
 }
 
 function timeAgo(date: string): string {
@@ -77,6 +83,11 @@ export default function VideosPage() {
               <span className="absolute top-2 right-2 bg-black/70 text-white text-[10px] font-mono px-1.5 py-0.5 rounded">
                 {fmt(v.views)} views
               </span>
+              {v.estimatedRevenue > 0 && (
+                <span className="absolute top-2 left-2 bg-emerald-600/90 text-white text-[10px] font-mono px-1.5 py-0.5 rounded">
+                  Est. {fmtDollars(v.estimatedRevenue)}
+                </span>
+              )}
             </a>
 
             <div className="p-4">
@@ -85,24 +96,19 @@ export default function VideosPage() {
                 {v.title}
               </h3>
 
-              {/* Stats row */}
-              <div className="flex items-center gap-4 text-[11px] text-zinc-400 mb-3">
-                <span className="flex items-center gap-1"><IconEye size={12} />{fmt(v.views)}</span>
-                <span className="flex items-center gap-1"><IconThumbUp size={12} />{fmt(v.likes)}</span>
-                <span className="flex items-center gap-1"><IconMessage size={12} />{fmt(v.comments)}</span>
-                <span className="ml-auto">{timeAgo(v.publishedAt)}</span>
+              {/* Hero stat: Views */}
+              <div className="flex items-baseline justify-between mb-3">
+                <p className="text-[20px] font-medium text-zinc-900 font-mono">{fmt(v.views)} <span className="text-[12px] text-zinc-400 font-normal">views</span></p>
+                <span className="text-[11px] text-zinc-400">{timeAgo(v.publishedAt)}</span>
               </div>
 
-              {/* Performance stats */}
-              <div className="flex gap-2 mb-3">
-                <div className="flex-1 rounded-lg bg-zinc-50 border border-zinc-100 px-3 py-2 text-center">
-                  <p className="text-[10px] text-zinc-400 uppercase tracking-wider mb-0.5">Retention</p>
-                  <p className="text-[14px] font-medium font-mono text-zinc-900">{v.retention}%</p>
-                </div>
-                <div className="flex-1 rounded-lg bg-zinc-50 border border-zinc-100 px-3 py-2 text-center">
-                  <p className="text-[10px] text-zinc-400 uppercase tracking-wider mb-0.5">CTR</p>
-                  <p className="text-[14px] font-medium font-mono text-zinc-900">{v.ctr}%</p>
-                </div>
+              {/* Engagement row */}
+              <div className="flex items-center gap-4 text-[11px] text-zinc-400 mb-3">
+                <span className="flex items-center gap-1"><IconThumbUp size={12} />{fmt(v.likes)}</span>
+                <span className="flex items-center gap-1"><IconMessage size={12} />{fmt(v.comments)}</span>
+                <span className="text-zinc-300">·</span>
+                <span>{v.retention}% ret</span>
+                <span>{v.ctr}% ctr</span>
               </div>
 
               {/* Team credits */}
