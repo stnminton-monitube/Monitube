@@ -173,42 +173,41 @@ export default function PublicCalculatorPage() {
   const revenuePerVideo = (avgViews / 1000) * avgRpm;
   const monthlyRevenue = revenuePerVideo * videosPerMonth;
 
-  let suggestedPay = 0;
   let payLabel = "";
   let payContext = "";
+  let monthlyCost = 0;
+  let perVideoCost = 0;
 
   if (model === "per_video") {
-    const base =
-      (roleInfo.perVideoRange[0] + roleInfo.perVideoRange[1]) / 2;
-    suggestedPay = base * comp.mult;
-    const monthlyTotal = suggestedPay * videosPerMonth;
-    payLabel = `${fmt(suggestedPay)} per video`;
-    payContext = `That’s ${fmt(monthlyTotal)}/month for ${videosPerMonth} videos — ${((monthlyTotal / monthlyRevenue) * 100).toFixed(1)}% of your estimated revenue.`;
+    const base = (roleInfo.perVideoRange[0] + roleInfo.perVideoRange[1]) / 2;
+    perVideoCost = base * comp.mult;
+    monthlyCost = perVideoCost * videosPerMonth;
+    payLabel = `${fmt(perVideoCost)} per video`;
+    payContext = `That’s ${fmt(monthlyCost)}/month for ${videosPerMonth} videos.`;
   } else if (model === "monthly") {
-    const base =
-      (roleInfo.monthlyRange[0] + roleInfo.monthlyRange[1]) / 2;
-    suggestedPay = base * comp.mult;
-    const perVideo = suggestedPay / videosPerMonth;
-    payLabel = `${fmt(suggestedPay)} per month`;
-    payContext = `That’s ${fmt(perVideo)} per video — ${((suggestedPay / monthlyRevenue) * 100).toFixed(1)}% of your estimated monthly revenue.`;
+    const base = (roleInfo.monthlyRange[0] + roleInfo.monthlyRange[1]) / 2;
+    monthlyCost = base * comp.mult;
+    perVideoCost = monthlyCost / videosPerMonth;
+    payLabel = `${fmt(monthlyCost)} per month`;
+    payContext = `That’s ${fmt(perVideoCost)} per video across ${videosPerMonth} videos.`;
   } else if (model === "revenue_share") {
-    const pct =
-      (roleInfo.revShareRange[0] + roleInfo.revShareRange[1]) / 2;
-    suggestedPay = (pct / 100) * monthlyRevenue;
+    const pct = (roleInfo.revShareRange[0] + roleInfo.revShareRange[1]) / 2;
+    monthlyCost = (pct / 100) * monthlyRevenue;
+    perVideoCost = monthlyCost / videosPerMonth;
     payLabel = `${pct.toFixed(0)}% of revenue`;
-    payContext = `At your current views, that’s roughly ${fmt(suggestedPay)}/month. Scales up or down with performance — ${role === "editor" ? "editors" : "team members"} are incentivized to do great work.`;
+    payContext = `At your current views, that’s roughly ${fmt(monthlyCost)}/month. Scales with performance.`;
   } else if (model === "hybrid") {
     const flatBase = roleInfo.perVideoRange[0] * comp.mult * 0.6;
     const pct = roleInfo.revShareRange[0] + 2;
     const commissionPart = (pct / 100) * monthlyRevenue;
-    suggestedPay = flatBase * videosPerMonth + commissionPart;
+    monthlyCost = (flatBase * videosPerMonth) + commissionPart;
+    perVideoCost = monthlyCost / videosPerMonth;
     payLabel = `${fmt(flatBase)} per video + ${pct}% of revenue`;
-    payContext = `The flat fee gives them stability. The commission rewards performance. Total estimated: ${fmt(suggestedPay)}/month.`;
+    payContext = `Flat fee for stability, commission for performance. Total: ${fmt(monthlyCost)}/month.`;
   }
 
-  const teamCostPct = (suggestedPay / monthlyRevenue) * 100;
-  const costPer1kViews =
-    avgViews > 0 ? suggestedPay / (avgViews / 1000) : 0;
+  const teamCostPct = monthlyRevenue > 0 ? (monthlyCost / monthlyRevenue) * 100 : 0;
+  const costPer1kViews = avgViews > 0 ? perVideoCost / (avgViews / 1000) : 0;
 
   /* -- Inline input styles for the dark theme -- */
   const inputStyle: React.CSSProperties = {
