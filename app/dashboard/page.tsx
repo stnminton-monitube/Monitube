@@ -1,118 +1,182 @@
 "use client";
 
-import { IconColumns3, IconReceipt, IconUserCircle, IconCalculator, IconUsers, IconArrowRight, IconCurrencyDollar, IconChartBar, IconTargetArrow, IconFileInvoice } from "@tabler/icons-react";
 import Link from "next/link";
+import {
+  IconArrowRight,
+  IconCurrencyDollar,
+  IconUsers,
+  IconColumns3,
+  IconChartBar,
+} from "@tabler/icons-react";
 
-const HIGHLIGHTS = [
-  {
-    icon: IconCurrencyDollar,
-    title: "Earnings",
-    value: "$4,850",
-    sub: "estimated this month",
-    href: "/dashboard/earnings",
-    color: "text-emerald-600",
-    bg: "bg-emerald-50",
-  },
-  {
-    icon: IconChartBar,
-    title: "Team Spend",
-    value: "$2,850",
-    sub: "59% of revenue",
-    href: "/dashboard/spending",
-    color: "text-[#7B6EF6]",
-    bg: "bg-[#7B6EF6]/5",
-  },
-  {
-    icon: IconReceipt,
-    title: "Payments",
-    value: "6",
-    sub: "logged this month",
-    href: "/dashboard/payments",
-    color: "text-blue-600",
-    bg: "bg-blue-50",
-  },
-  {
-    icon: IconColumns3,
-    title: "Pipeline",
-    value: "3",
-    sub: "videos in progress",
-    href: "/dashboard/pipeline",
-    color: "text-amber-600",
-    bg: "bg-amber-50",
-  },
+/* ─── Demo data ────────────────────────────────────────────── */
+
+const RECENT_PAYMENTS = [
+  { name: "Jake Morrison", amount: 475, date: "Jun 18" },
+  { name: "Sofia Chen", amount: 65, date: "Jun 15" },
+  { name: "Marcus Williams", amount: 275, date: "Jun 12" },
+  { name: "Priya Sharma", amount: 380, date: "Jun 10" },
+  { name: "Tyler Brooks", amount: 175, date: "Jun 8" },
 ];
 
-const QUICK_ACTIONS = [
-  { icon: IconColumns3, label: "Add a video to pipeline", href: "/dashboard/pipeline" },
-  { icon: IconReceipt, label: "Log a payment", href: "/dashboard/payments" },
-  { icon: IconFileInvoice, label: "Create an invoice", href: "/dashboard/invoices" },
-  { icon: IconCalculator, label: "Calculate fair pay", href: "/dashboard/calculator" },
-  { icon: IconTargetArrow, label: "Set a bonus target", href: "/dashboard/bonuses" },
-  { icon: IconUsers, label: "Manage team", href: "/dashboard/team" },
-  { icon: IconUserCircle, label: "Manage public profiles", href: "/dashboard/profiles" },
-  { icon: IconCurrencyDollar, label: "View channel earnings", href: "/dashboard/earnings" },
+const ACTIVE_BONUSES = [
+  { member: "Jake Morrison", target: "Avg 80K+ views across 5 videos", progress: 60, bonus: 200 },
+  { member: "Sofia Chen", target: "Complete 10 thumbnails this month", progress: 70, bonus: 100 },
+  { member: "Marcus Williams", target: "48hr script delivery for 4 videos", progress: 50, bonus: 150 },
 ];
+
+const PIPELINE_STAGES = [
+  { label: "Idea", count: 2 },
+  { label: "Script", count: 1 },
+  { label: "Filming", count: 0 },
+  { label: "Editing", count: 2 },
+  { label: "Review", count: 1 },
+  { label: "Published", count: 2 },
+];
+
+/* ─── Helpers ──────────────────────────────────────────────── */
+
+function fmtDollars(n: number): string {
+  return "$" + n.toLocaleString();
+}
+
+/* ─── Component ────────────────────────────────────────────── */
 
 export default function DashboardPage() {
   return (
     <div>
-      <div className="mb-8">
+      <div className="mb-6">
         <h1 className="font-heading text-2xl font-medium tracking-tight text-zinc-900">
-          Dashboard
+          Overview
         </h1>
         <p className="text-[13px] text-zinc-500 mt-1">
           Your YouTube team at a glance.
         </p>
       </div>
 
-      {/* Highlight cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {HIGHLIGHTS.map(h => (
-          <Link key={h.title} href={h.href}
-            className="bg-white rounded-2xl border border-zinc-200 p-5 hover:border-zinc-300 hover:shadow-sm transition-all group">
-            <div className="flex items-center justify-between mb-3">
-              <div className={`w-8 h-8 rounded-lg ${h.bg} flex items-center justify-center`}>
-                <h.icon size={16} className={h.color} />
-              </div>
-              <IconArrowRight size={13} className="text-zinc-300 group-hover:text-zinc-400 transition-colors" />
+      {/* Metric cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+        <div className="bg-white rounded-2xl border border-zinc-200 p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-7 h-7 rounded-lg bg-emerald-50 flex items-center justify-center">
+              <IconCurrencyDollar size={14} className="text-emerald-600" />
             </div>
-            <p className="text-[11px] text-zinc-400 uppercase tracking-wider font-medium">{h.title}</p>
-            <p className="font-heading text-2xl font-medium tracking-tight text-zinc-900 font-mono mt-1">{h.value}</p>
-            <p className="text-[12px] text-zinc-400 mt-0.5">{h.sub}</p>
-          </Link>
-        ))}
-      </div>
+            <p className="text-[11px] text-zinc-400 uppercase tracking-wider font-medium">Revenue</p>
+          </div>
+          <p className="font-heading text-xl font-medium tracking-tight text-zinc-900 font-mono">$4,850<span className="text-[12px] text-zinc-400 font-normal">/mo</span></p>
+        </div>
 
-      {/* Quick actions */}
-      <div className="bg-white rounded-2xl border border-zinc-200 p-6 mb-6">
-        <h2 className="font-heading text-lg font-medium text-zinc-900 mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {QUICK_ACTIONS.map(a => (
-            <Link key={a.label} href={a.href}
-              className="flex items-center gap-3 p-3 rounded-xl border border-zinc-100 hover:bg-zinc-50 hover:border-zinc-200 transition-colors">
-              <a.icon size={16} className="text-zinc-400 shrink-0" stroke={1.6} />
-              <span className="text-[12px] text-zinc-700">{a.label}</span>
-            </Link>
-          ))}
+        <div className="bg-white rounded-2xl border border-zinc-200 p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-7 h-7 rounded-lg bg-[#7B6EF6]/5 flex items-center justify-center">
+              <IconChartBar size={14} className="text-[#7B6EF6]" />
+            </div>
+            <p className="text-[11px] text-zinc-400 uppercase tracking-wider font-medium">Team Cost</p>
+          </div>
+          <p className="font-heading text-xl font-medium tracking-tight text-zinc-900 font-mono">$2,850<span className="text-[12px] text-zinc-400 font-normal">/mo</span></p>
+          <p className="text-[10px] text-zinc-400 mt-0.5">59% of revenue</p>
+        </div>
+
+        <div className="bg-white rounded-2xl border border-zinc-200 p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-7 h-7 rounded-lg bg-amber-50 flex items-center justify-center">
+              <IconColumns3 size={14} className="text-amber-600" />
+            </div>
+            <p className="text-[11px] text-zinc-400 uppercase tracking-wider font-medium">In Pipeline</p>
+          </div>
+          <p className="font-heading text-xl font-medium tracking-tight text-zinc-900 font-mono">3</p>
+          <p className="text-[10px] text-zinc-400 mt-0.5">videos in progress</p>
+        </div>
+
+        <div className="bg-white rounded-2xl border border-zinc-200 p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center">
+              <IconUsers size={14} className="text-blue-600" />
+            </div>
+            <p className="text-[11px] text-zinc-400 uppercase tracking-wider font-medium">Team</p>
+          </div>
+          <p className="font-heading text-xl font-medium tracking-tight text-zinc-900 font-mono">6</p>
+          <p className="text-[10px] text-zinc-400 mt-0.5">members</p>
         </div>
       </div>
 
-      {/* Getting started */}
-      <div className="bg-zinc-50 rounded-2xl border border-zinc-200 p-6">
-        <h2 className="font-heading text-lg font-medium text-zinc-900 mb-1">Getting Started</h2>
-        <p className="text-[13px] text-zinc-500 mb-4">Set up your workspace step by step.</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-          {[
-            "Add your team members",
-            "Add your first video to the pipeline",
-            "Log your first payment",
-            "Set your channel RPM in Earnings",
-            "Create your first invoice",
-            "Set up a team member's public profile",
-          ].map((step, i) => (
-            <div key={i} className="flex items-center gap-3 bg-white rounded-xl border border-zinc-100 px-4 py-3">
-              <div className="w-5 h-5 rounded-full border-2 border-zinc-300 shrink-0" />
-              <span className="text-[13px] text-zinc-700">{step}</span>
+      {/* Middle section: payments + bonuses */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+        {/* Recent payments */}
+        <div className="lg:col-span-2 bg-white rounded-2xl border border-zinc-200 p-5">
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-[11px] text-zinc-400 uppercase tracking-wider font-medium">Recent Payments</p>
+            <Link href="/dashboard/money" className="text-[11px] text-[#7B6EF6] font-medium flex items-center gap-1 hover:underline">
+              View all <IconArrowRight size={11} />
+            </Link>
+          </div>
+          <div className="flex flex-col">
+            {RECENT_PAYMENTS.map((p, i) => (
+              <div key={p.name} className={`flex items-center justify-between py-2.5 ${i < RECENT_PAYMENTS.length - 1 ? "border-b border-zinc-50" : ""}`}>
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#7B6EF6] to-[#E96BF5] flex items-center justify-center text-white text-[9px] font-semibold font-heading shrink-0">
+                    {p.name.split(" ").map((w) => w[0]).join("")}
+                  </div>
+                  <p className="text-[13px] text-zinc-900">{p.name}</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <p className="text-[13px] text-emerald-700 font-mono font-medium">{fmtDollars(p.amount)}</p>
+                  <p className="text-[11px] text-zinc-400 font-mono">{p.date}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Active bonuses */}
+        <div className="bg-white rounded-2xl border border-zinc-200 p-5">
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-[11px] text-zinc-400 uppercase tracking-wider font-medium">Active Bonuses</p>
+            <Link href="/dashboard/bonuses" className="text-[11px] text-[#7B6EF6] font-medium flex items-center gap-1 hover:underline">
+              View all <IconArrowRight size={11} />
+            </Link>
+          </div>
+          <div className="flex flex-col gap-4">
+            {ACTIVE_BONUSES.map((b) => (
+              <div key={b.member}>
+                <div className="flex items-center justify-between mb-1">
+                  <p className="text-[13px] text-zinc-900 font-medium">{b.member}</p>
+                  <p className="text-[11px] text-emerald-600 font-mono font-medium">{fmtDollars(b.bonus)}</p>
+                </div>
+                <p className="text-[11px] text-zinc-400 mb-2">{b.target}</p>
+                <div className="h-1.5 bg-zinc-100 rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-[#7B6EF6] to-[#E96BF5]"
+                    style={{ width: `${b.progress}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Pipeline preview */}
+      <div className="bg-white rounded-2xl border border-zinc-200 p-5">
+        <div className="flex items-center justify-between mb-4">
+          <p className="text-[11px] text-zinc-400 uppercase tracking-wider font-medium">Pipeline</p>
+          <Link href="/dashboard/pipeline" className="text-[11px] text-[#7B6EF6] font-medium flex items-center gap-1 hover:underline">
+            Open pipeline <IconArrowRight size={11} />
+          </Link>
+        </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          {PIPELINE_STAGES.map((stage, i) => (
+            <div key={stage.label} className="flex items-center gap-2">
+              <div className={`px-3 py-1.5 rounded-lg text-[12px] font-medium ${
+                stage.count > 0
+                  ? "bg-zinc-900 text-white"
+                  : "bg-zinc-100 text-zinc-400"
+              }`}>
+                {stage.label} <span className="font-mono ml-1">{stage.count}</span>
+              </div>
+              {i < PIPELINE_STAGES.length - 1 && (
+                <IconArrowRight size={12} className="text-zinc-300" />
+              )}
             </div>
           ))}
         </div>

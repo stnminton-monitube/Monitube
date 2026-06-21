@@ -6,54 +6,23 @@ import {
   IconLayoutDashboard,
   IconColumns3,
   IconUsers,
+  IconCurrencyDollar,
   IconCalculator,
-  IconReceipt,
   IconFileInvoice,
-  IconUserCircle,
+  IconTargetArrow,
   IconSettings,
   IconX,
-  IconCurrencyDollar,
-  IconChartBar,
-  IconTargetArrow,
 } from "@tabler/icons-react";
 
-const sections = [
-  {
-    label: null,
-    items: [
-      { label: "Overview", href: "/dashboard", icon: IconLayoutDashboard },
-    ],
-  },
-  {
-    label: "Projects",
-    items: [
-      { label: "Pipeline", href: "/dashboard/pipeline", icon: IconColumns3 },
-      { label: "Team", href: "/dashboard/team", icon: IconUsers },
-    ],
-  },
-  {
-    label: "Money",
-    items: [
-      { label: "Earnings", href: "/dashboard/earnings", icon: IconCurrencyDollar },
-      { label: "Spending", href: "/dashboard/spending", icon: IconChartBar },
-      { label: "Calculator", href: "/dashboard/calculator", icon: IconCalculator },
-      { label: "Payments", href: "/dashboard/payments", icon: IconReceipt },
-      { label: "Invoices", href: "/dashboard/invoices", icon: IconFileInvoice },
-      { label: "Bonuses", href: "/dashboard/bonuses", icon: IconTargetArrow },
-    ],
-  },
-  {
-    label: "Profiles",
-    items: [
-      { label: "Public Profiles", href: "/dashboard/profiles", icon: IconUserCircle },
-    ],
-  },
-  {
-    label: null,
-    items: [
-      { label: "Settings", href: "/dashboard/settings", icon: IconSettings },
-    ],
-  },
+const NAV_ITEMS = [
+  { label: "Overview", href: "/dashboard", icon: IconLayoutDashboard },
+  { label: "Pipeline", href: "/dashboard/pipeline", icon: IconColumns3 },
+  { label: "Team", href: "/dashboard/team", icon: IconUsers },
+  { label: "Money", href: "/dashboard/money", icon: IconCurrencyDollar },
+  { label: "Calculator", href: "/dashboard/calculator", icon: IconCalculator },
+  { label: "Invoices", href: "/dashboard/invoices", icon: IconFileInvoice },
+  { label: "Bonuses", href: "/dashboard/bonuses", icon: IconTargetArrow },
+  { label: "Settings", href: "/dashboard/settings", icon: IconSettings },
 ];
 
 export default function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -85,30 +54,23 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
           </button>
         </div>
 
-        <nav className="flex-1 px-3 py-3 overflow-y-auto">
-          {sections.map((section, si) => (
-            <div key={si} className={si > 0 ? "mt-5" : ""}>
-              {section.label && (
-                <p className="text-[10px] text-zinc-400 uppercase tracking-wider font-medium px-3 mb-1.5">{section.label}</p>
-              )}
-              <ul className="flex flex-col gap-0.5">
-                {section.items.map(({ label, href, icon: Icon }) => {
-                  const active = isActive(href);
-                  return (
-                    <li key={href}>
-                      <Link href={href} onClick={onClose}
-                        className={`flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-normal transition-colors duration-150 ${
-                          active ? "bg-[#7B6EF6]/8 text-[#7B6EF6] font-medium" : "text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900"
-                        }`}>
-                        <Icon size={17} stroke={1.6} />
-                        {label}
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          ))}
+        <nav className="flex-1 px-3 py-4 overflow-y-auto">
+          <ul className="flex flex-col gap-0.5">
+            {NAV_ITEMS.map(({ label, href, icon: Icon }) => {
+              const active = isActive(href);
+              return (
+                <li key={href}>
+                  <Link href={href} onClick={onClose}
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-normal transition-colors duration-150 ${
+                      active ? "bg-[#7B6EF6]/8 text-[#7B6EF6] font-medium" : "text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900"
+                    }`}>
+                    <Icon size={17} stroke={1.6} />
+                    {label}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
         </nav>
 
         <div className="px-4 py-4 border-t border-zinc-100">
@@ -116,7 +78,7 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
             <p className="text-[11px] font-medium text-zinc-700">Free Plan</p>
             <p className="text-[10px] text-zinc-400 mt-0.5">3 videos · 1 member</p>
             <Link href="/dashboard/settings" className="text-[10px] text-[#7B6EF6] font-medium mt-1.5 block hover:underline">
-              Upgrade to Pro →
+              Upgrade to Pro &rarr;
             </Link>
           </div>
         </div>
