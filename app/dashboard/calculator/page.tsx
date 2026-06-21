@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { IconCalculator, IconInfoCircle } from "@tabler/icons-react";
+import { useState, useEffect } from "react";
+import { IconCalculator, IconInfoCircle, IconBrandYoutube, IconCheck } from "@tabler/icons-react";
 
 type PayModel = "per_video" | "monthly" | "revenue_share" | "hybrid";
 
@@ -67,6 +67,25 @@ export default function CalculatorPage() {
   const [avgViews, setAvgViews] = useState(100000);
   const [viewsInput, setViewsInput] = useState("100,000");
   const [complexity, setComplexity] = useState("standard");
+  const [ytConnected, setYtConnected] = useState(false);
+  const [ytChannelName, setYtChannelName] = useState("");
+
+  useEffect(() => {
+    try {
+      const cookie = document.cookie.split("; ").find(c => c.startsWith("yt_channel_data="));
+      if (cookie) {
+        const data = JSON.parse(decodeURIComponent(cookie.split("=").slice(1).join("=")));
+        if (data.rpm) setAvgRpm(data.rpm);
+        if (data.monthlyViews && data.monthlyViews > 0) {
+          const avgV = Math.round(data.monthlyViews / Math.max(videosPerMonth, 1));
+          setAvgViews(avgV);
+          setViewsInput(avgV.toLocaleString());
+        }
+        if (data.channelName) setYtChannelName(data.channelName);
+        setYtConnected(true);
+      }
+    } catch { /* no cookie or invalid */ }
+  }, []);
 
   const roleInfo = ROLE_DATA[role];
   const comp = COMPLEXITY_MULTIPLIER[complexity];
@@ -126,7 +145,19 @@ export default function CalculatorPage() {
         <div className="lg:col-span-3 space-y-5">
           {/* Your channel */}
           <div className="bg-white rounded-2xl border border-zinc-200 p-6">
-            <p className="text-[11px] text-zinc-400 uppercase tracking-wider font-medium mb-4">Your Channel</p>
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-[11px] text-zinc-400 uppercase tracking-wider font-medium">Your Channel</p>
+              {ytConnected ? (
+                <span className="flex items-center gap-1.5 text-[11px] text-emerald-600 font-medium bg-emerald-50 px-2.5 py-1 rounded-full">
+                  <IconCheck size={12} /> {ytChannelName || "YouTube connected"}
+                </span>
+              ) : (
+                <a href="/api/youtube/connect"
+                  className="flex items-center gap-1.5 text-[11px] text-red-600 font-medium bg-red-50 px-2.5 py-1 rounded-full hover:bg-red-100 transition-colors">
+                  <IconBrandYoutube size={13} /> Connect YouTube — auto-fill RPM
+                </a>
+              )}
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className="text-[12px] text-zinc-600 font-medium mb-1.5 block">Videos per month</label>
